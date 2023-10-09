@@ -42,7 +42,8 @@ class PostDetailView(DetailView):
         post = get_object_or_404(Post, pk=self.kwargs['pk'])
         if (
             post.author == self.request.user or
-            (post.is_published and post.pub_date <= timezone.now() and
+            (post.is_published and
+             post.pub_date <= timezone.now() and
              post.category.is_published)
         ):
             return post
