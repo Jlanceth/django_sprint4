@@ -7,9 +7,9 @@ app_name = 'blog'
 urlpatterns = [
     path('', views.IndexView.as_view(), name='index'),
     path(
-         'category/<slug:category_slug>/',
-         views.category_posts,
-         name='category_posts'
+        'category/<slug:category_slug>/',
+        views.category_posts,
+        name='category_posts'
     ),
     path(
         'profile/<str:username>/',
