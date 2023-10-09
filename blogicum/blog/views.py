@@ -23,7 +23,6 @@ COUNT_POSTS = 10
 
 
 class IndexView(ListView):
-    model = Post
     template_name = 'blog/index.html'
     paginate_by = COUNT_POSTS
     ordering = '-pub_date'
@@ -69,7 +68,7 @@ def category_posts(request, category_slug):
         is_published=True,
         pub_date__lte=timezone.now()
     ).order_by('-pub_date')
-    paginator = Paginator(post_list, 10)
+    paginator = Paginator(post_list, COUNT_POSTS)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
     context = {'category': category, 'page_obj': page_obj}
