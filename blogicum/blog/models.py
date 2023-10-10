@@ -1,12 +1,10 @@
 from django.db import models
-
 from django.contrib.auth import get_user_model
+
+from constants import CHAR_STRING_LENGHT, SLUG_STRING_LENGHT
 
 
 User = get_user_model()
-
-CHAR_STRING_LENGHT = 256
-SLUG_STRING_LENGHT = 64
 
 
 class BaseModel(models.Model):
@@ -83,25 +81,23 @@ class Post(BaseModel):
         User,
         on_delete=models.CASCADE,
         verbose_name='Автор публикации',
-        related_name='posts',
     )
     location = models.ForeignKey(
         Location,
         null=True, on_delete=models.SET_NULL,
         verbose_name='Местоположение',
-        related_name='posts',
     )
     category = models.ForeignKey(
         Category,
         null=True,
         on_delete=models.SET_NULL,
         verbose_name='Категория',
-        related_name='posts',
     )
 
     class Meta:
         verbose_name = 'публикация'
         verbose_name_plural = 'Публикации'
+        default_related_name = 'posts'
 
     def __str__(self):
         return self.title
@@ -112,16 +108,16 @@ class Comment(models.Model):
     post = models.ForeignKey(
         Post,
         on_delete=models.CASCADE,
-        related_name='comment',
     )
     created_at = models.DateTimeField(auto_now_add=True)
     author = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
-        related_name='comment',)
+    )
 
     class Meta:
         ordering = ('created_at',)
+        default_related_name = 'comment'
 
     def __str__(self):
         return f'Комментарий от {self.author} к "{self.post}"'

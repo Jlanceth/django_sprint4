@@ -8,24 +8,22 @@ from django.views.generic import (
 from django.urls import reverse_lazy
 from django.contrib.auth.decorators import login_required
 from django.db.models import Count
-from django.http import Http404
+from django.db.models import Q
 from django.core.exceptions import PermissionDenied
 
 from .forms import CommentForm, PostForm
-from blog.models import Post, Category, Comment
+from .models import Post, Category, Comment
 from django.contrib.auth import get_user_model
+
+from constants import COUNT_POSTS
 
 
 User = get_user_model()
 
 
-COUNT_POSTS = 10
-
-
 class IndexView(ListView):
     template_name = 'blog/index.html'
     paginate_by = COUNT_POSTS
-    ordering = '-pub_date'
     queryset = Post.objects.filter(
         is_published=True,
         category__is_published=True,
@@ -37,16 +35,18 @@ class PostDetailView(DetailView):
     model = Post
     template_name = 'blog/detail.html'
 
-    def get_object(self, queryset=None):
-        post = get_object_or_404(Post, pk=self.kwargs['pk'])
-        if (
-            post.author == self.request.user
-            or post.is_published and post.pub_date <= timezone.now()
-            and post.category.is_published
-        ):
-            return post
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        if self.request.user.is_authenticated:
+            queryset = queryset.filter(
+                Q(author=self.request.user) |
+                (Q(is_published=True) &
+                 Q(pub_date__lte=timezone.now()) &
+                 Q(category__is_published=True))
+            )
         else:
-            raise Http404("Page not found.")
+            queryset = queryset.all()
+        return queryset
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -63,8 +63,7 @@ def category_posts(request, category_slug):
         Category,
         slug=category_slug,
         is_published=True)
-    post_list = Post.objects.filter(
-        category=category,
+    post_list = category.posts.filter(
         is_published=True,
         pub_date__lte=timezone.now()
     ).order_by('-pub_date')

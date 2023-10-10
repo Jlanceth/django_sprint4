@@ -5,15 +5,10 @@ from django.views.generic.edit import CreateView
 from django.conf import settings
 from django.conf.urls.static import static
 
-
 handler404 = 'pages.views.page_not_found'
 handler500 = 'pages.views.processing_error'
 
-urlpatterns = [
-    path('', include('blog.urls', namespace='blog')),
-    path('pages/', include('pages.urls', namespace='pages')),
-    path('admin/', admin.site.urls),
-    path('auth/', include('django.contrib.auth.urls')),
+auth_urls = [
     path(
         'auth/registration/',
         CreateView.as_view(
@@ -23,4 +18,11 @@ urlpatterns = [
         ),
         name='registration',
     ),
-] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+]
+
+urlpatterns = [
+    path('', include('blog.urls', namespace='blog')),
+    path('pages/', include('pages.urls', namespace='pages')),
+    path('admin/', admin.site.urls),
+    path('auth/', include('django.contrib.auth.urls')),
+] + auth_urls + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
