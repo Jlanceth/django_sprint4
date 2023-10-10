@@ -39,10 +39,10 @@ class PostDetailView(DetailView):
         queryset = super().get_queryset()
         if self.request.user.is_authenticated:
             queryset = queryset.filter(
-                Q(author=self.request.user) |
-                (Q(is_published=True) &
-                 Q(pub_date__lte=timezone.now()) &
-                 Q(category__is_published=True))
+                Q(author=self.request.user)
+                | (Q(is_published=True)
+                   & Q(pub_date__lte=timezone.now())
+                   & Q(category__is_published=True))
             )
         else:
             queryset = queryset.all()
